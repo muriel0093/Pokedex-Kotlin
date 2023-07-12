@@ -6,11 +6,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.pokedex.R
 import com.example.pokedex.domain.Pokemon
+import java.util.Locale
 
 class pokeadapter(
-    private val items: List<Pokemon>
+    private val items: List<Pokemon?>
 ) : RecyclerView.Adapter<pokeadapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +36,7 @@ class pokeadapter(
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindView(item: Pokemon) =
+        fun bindView(item: Pokemon?) =
             with(itemView) {// with aponta o this para o contexto dado dentro dos parenteses, fora do with o this aponta para
                 //o viewHolder  e dentro do with o this aponta para a view
                 val ivPokemon = findViewById<ImageView>(R.id.ivPokemon)
@@ -45,17 +47,21 @@ class pokeadapter(
 
                 // TODO: Load image with Glade
 
-                tvName.text = item.name
-                tvNumber.text = "Nº ${item.formatterNumber}"
-                tvType1.text = item.type[0].name
+                item?.let{
+                    Glide.with(itemView.context).load(it.imageUrl).into(ivPokemon)
 
-                if(item.type.size > 1){
-                    tvType2.visibility= View.VISIBLE
-                    tvType2.text = item.type[1].name
-                }else{
-                    tvType2.visibility= View.GONE
+                    tvName.text = item.formattedName
+                    tvNumber.text = "Nº ${item.formatterNumber}"
+                    tvType1.text = item.type[0].name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()) else it.toString() }
+
+                    if(item.type.size > 1){
+                        tvType2.visibility= View.VISIBLE
+                        tvType2.text = item.type[1].name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    }else{
+                        tvType2.visibility= View.GONE
+                    }
                 }
-
             }
     }
 
